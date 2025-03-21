@@ -1,92 +1,33 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  email         String    @unique
-  password      String
-  name          String
-  role          Role      @default(SEEKER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  company       Company?
-  applications  Application[]
-  profile       Profile?
-}
-
-model Company {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  website     String?
-  logo        String?
-  userId      String    @unique @db.ObjectId
-  user        User      @relation(fields: [userId], references: [id])
-  jobs        Job[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-model Job {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String
-  location    String
-  type        JobType
-  salary      String?
-  companyId   String    @db.ObjectId
-  company     Company   @relation(fields: [companyId], references: [id])
-  applications Application[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-model Application {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  jobId     String   @db.ObjectId
-  job       Job      @relation(fields: [jobId], references: [id])
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  resume    String
-  status    ApplicationStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String?
+  email     String    @unique
+  password  String
+  role      String    // "SEEKER" or "COMPANY"
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  profile   Profile?
 }
 
 model Profile {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String   @unique @db.ObjectId
-  user        User     @relation(fields: [userId], references: [id])
-  bio         String?
-  skills      String[]
-  experience  String[]
-  education   String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @unique @db.ObjectId
+  bio        String?
+  skills     String[]
+  experience String?
+  education  String?
+  resume     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum Role {
-  ADMIN
-  COMPANY
-  SEEKER
-}
-
-enum JobType {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-  INTERNSHIP
-}
-
-enum ApplicationStatus {
-  PENDING
-  REVIEWING
-  ACCEPTED
-  REJECTED
-} 
